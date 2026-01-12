@@ -27,17 +27,16 @@
     .detail dt { font-weight:600; color:#555; margin:0; }
     .detail dd { margin:0; color:#333; }
     .no-image {
-  width: 100%;
-  height: 100%;
-  background: #eee;
-  color: #999;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
+      width: 100%;
+      height: 100%;
+      background: #eee;
+      color: #999;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
     .footer { padding:10px 14px; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:6px; }
     .badge { border:1px solid #ccc; border-radius:999px; padding:2px 8px; font-size:0.85rem; color:#555; background:#fff; }
     .empty { text-align:center; color:#777; padding:32px 0; display:none; }
@@ -78,15 +77,19 @@
       pref: "都道府県",
       block: "所属ブロック",
       council: "所属議会",
-      party: "所属政党",
-      firstWon: "初当選年月日",
-      nextElection: "次回改選年月日",
       birthday: "誕生日",
+      party: "所属政党",
+      firstWon: "初当選年月",
+      nextElection: "次回改選年月",
       address: "住所",
       tel: "電話番号",
       fax: "FAX",
       email: "メールアドレス",
       photo: "HP掲載用写真",
+      addressPub: "住所公開",
+      telPub: "電話番号公開",
+      birthdayPub: "誕生日公開",
+      emailPub: "メールアドレス公開",
       publish: "掲載判定"
     };
 
@@ -124,43 +127,61 @@
         return;
       }
       empty.style.display="none";
+
       filtered.forEach(m=>{
         const age=calcAge(m[F.birthday]);
         const img=convertDriveLink(m[F.photo]);
+
         const card=document.createElement("div");
         card.className="card";
-        card.innerHTML=`
-		<div class="card-header">
-		  ${img
-		    ? `<img src="${escapeHtml(img)}" alt="">`
-		    : `<div class="no-image">NO IMAGE</div>`}
-		</div>
 
-          <div class="card-body">
-            <div class="name-row">
-              ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
-              <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
-            </div>
-            <div class="meta-row">
-              ${age?`<div class="age">年齢: ${age}</div>`:""}
-              <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
-            </div>
-			<dl class="detail">
-			  <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
-			  <dt>初当選年月日</dt><dd>${escapeHtml(toSafe(m[F.firstWon]))}</dd>
-			  <dt>次回改選年月日</dt><dd>${escapeHtml(toSafe(m[F.nextElection]))}</dd>
-			  <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
-			  <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
-			  <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
-			  <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
-			</dl>
+        card.innerHTML=`
+        <div class="card-header">
+          ${img ? `<img src="${escapeHtml(img)}" alt="">` : `<div class="no-image">NO IMAGE</div>`}
+        </div>
+
+        <div class="card-body">
+          <div class="name-row">
+            ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
+            <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
           </div>
-          <div class="footer">
-            <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+
+          <div class="meta-row">
+            ${age?`<div class="age">年齢: ${age}</div>`:""}
+            <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
           </div>
+
+          <dl class="detail">
+            ${toSafe(m[F.birthdayPub]) === "する" ? `
+              <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
+            ` : ""}
+
+            <dt>初当選年月</dt><dd>${escapeHtml(toSafe(m[F.firstWon]))}</dd>
+            <dt>次回改選年月</dt><dd>${escapeHtml(toSafe(m[F.nextElection]))}</dd>
+
+            ${toSafe(m[F.addressPub]) === "する" ? `
+              <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
+            ` : ""}
+
+            ${toSafe(m[F.telPub]) === "する" ? `
+              <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
+            ` : ""}
+
+            <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
+
+            ${toSafe(m[F.emailPub]) === "する" ? `
+              <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
+            ` : ""}
+          </dl>
+        </div>
+
+        <div class="footer">
+          <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
+          <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
+          <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+        </div>
         `;
+
         grid.appendChild(card);
       });
     }
