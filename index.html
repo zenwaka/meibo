@@ -22,22 +22,20 @@
     .kana { font-size:0.8rem; color:#666; line-height:1.2; }
     .name { font-weight:600; font-size:1.1rem; }
     .meta-row { display:flex; gap:12px; font-size:0.95rem; color:#555; flex-wrap:wrap; }
-    .meta-row .age, .meta-row .meta { white-space:nowrap; }
     .detail { display:grid; grid-template-columns:auto 1fr; column-gap:8px; row-gap:4px; font-size:0.95rem; }
     .detail dt { font-weight:600; color:#555; margin:0; }
     .detail dd { margin:0; color:#333; }
     .no-image {
-  width: 100%;
-  height: 100%;
-  background: #eee;
-  color: #999;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
+      width:100%;
+      height:100%;
+      background:#eee;
+      color:#999;
+      font-size:0.9rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+    }
     .footer { padding:10px 14px; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:6px; }
     .badge { border:1px solid #ccc; border-radius:999px; padding:2px 8px; font-size:0.85rem; color:#555; background:#fff; }
     .empty { text-align:center; color:#777; padding:32px 0; display:none; }
@@ -46,188 +44,119 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>若手市議会議員の会 議員名簿</h1>
+<div class="container">
+  <h1>若手市議会議員の会 議員名簿</h1>
 
-    <div class="toolbar">
-      <div class="field"><label for="q">名前検索</label><input id="q" type="text"></div>
-      <div class="field"><label for="block">所属ブロック</label><select id="block"><option value="">すべて</option></select></div>
-      <div class="field"><label for="pref">都道府県</label><select id="pref"><option value="">すべて</option></select></div>
-      <div class="field"><label for="party">所属政党</label><select id="party"><option value="">すべて</option></select></div>
-      <div class="field"><label for="sort">並び替え</label>
-        <select id="sort">
-          <option value="">指定なし</option>
-          <option value="ageAsc">年齢順（若い順）</option>
-          <option value="ageDesc">年齢順（高い順）</option>
-        </select>
-      </div>
+  <div class="toolbar">
+    <div class="field"><label>名前検索</label><input id="q" type="text"></div>
+    <div class="field"><label>所属ブロック</label><select id="block"><option value="">すべて</option></select></div>
+    <div class="field"><label>都道府県</label><select id="pref"><option value="">すべて</option></select></div>
+    <div class="field"><label>所属政党</label><select id="party"><option value="">すべて</option></select></div>
+    <div class="field">
+      <label>並び替え</label>
+      <select id="sort">
+        <option value="">指定なし</option>
+        <option value="ageAsc">年齢順（若い順）</option>
+        <option value="ageDesc">年齢順（高い順）</option>
+      </select>
     </div>
-
-    <div id="count" class="count"></div>
-    <div id="grid" class="grid"></div>
-    <div id="empty" class="empty">条件に一致する議員がいません。</div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9JA87mZpxUJ44mWwaJozenwjG0nxd1TFB1LJUKcGCLQpb7g3gX3gb3t8iv6SBjP5iAwVaUhPmplA6/pub?gid=1450171419&single=true&output=csv";
+  <div id="count" class="count"></div>
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty">条件に一致する議員がいません。</div>
+</div>
 
-    const F = {
-      name: "名前",
-      kana: "ふりがな",
-      pref: "都道府県",
-      block: "所属ブロック",
-      council: "所属議会",
-      party: "所属政党",
-      firstWon: "初当選年月日",
-      nextElection: "次回改選年月日",
-      birthday: "誕生日",
-      address: "住所",
-      tel: "電話番号",
-      fax: "FAX",
-      email: "メールアドレス",
-      photo: "HP掲載用写真",
-      publish: "掲載判定"
-    };
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const CSV_URL = "（CSVのURL）";
 
-    function toSafe(s){ return (s ?? "").toString().trim(); }
-    function escapeHtml(str){ return (str ?? "").replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'}[s])); }
-    function parseDateLoose(s){ const t=toSafe(s); if(!t) return null; const n=t.replace(/年/g,"/").replace(/月/g,"/").replace(/日/g,""); const d=new Date(n); return isNaN(d)?null:d; }
-    function calcAge(b){ const d=parseDateLoose(b); if(!d) return ""; const t=new Date(); let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
+const F = {
+  name: "名前",
+  kana: "ふりがな",
+  pref: "都道府県",
+  block: "所属ブロック",
+  council: "所属議会",
+  party: "所属政党",
+  birthday: "誕生日",
+  firstWon: "初当選年月日",
+  nextElection: "次回改選年月日",
+  address: "住所",
+  tel: "電話番号",
+  fax: "FAX",
+  email: "メールアドレス",
+  photo: "HP掲載用写真",
+  publish: "掲載判定",
 
-    function convertDriveLink(url){
-      if (!url) return "";
-      const byIdParam = url.match(/[?&]id=([^&]+)/);
-      const byPath = url.match(/\/d\/([^/]+)/);
-      const id = byIdParam?.[1] || byPath?.[1] || "";
-      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w300` : url;
-    }
+  addressOpen: "住所公開",
+  telOpen: "電話番号公開",
+  birthdayOpen: "誕生日公開",
+  emailOpen: "メールアドレス公開"
+};
 
-    function uniqueSorted(v){ return [...new Set(v.filter(x=>x))].sort((a,b)=>a.localeCompare(b,'ja')); }
+const toSafe = s => (s ?? "").toString().trim();
+const escapeHtml = s => toSafe(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+);
+const isOpen = v => toSafe(v) === "する";
 
-    let rawData=[], filtered=[];
-    function renderOptions(id, values){
-      const sel=document.getElementById(id);
-      const opts=uniqueSorted(values);
-      sel.innerHTML=`<option value="">すべて</option>`+opts.map(v=>`<option>${escapeHtml(v)}</option>`).join("");
-    }
+const parseDateLoose = s => {
+  const t = toSafe(s);
+  if(!t) return null;
+  const d = new Date(t.replace(/年|月/g,"/").replace(/日/g,""));
+  return isNaN(d) ? null : d;
+};
+const calcAge = b => {
+  const d = parseDateLoose(b);
+  if(!d) return "";
+  const t = new Date();
+  let a = t.getFullYear() - d.getFullYear();
+  if(t < new Date(t.getFullYear(), d.getMonth(), d.getDate())) a--;
+  return a;
+};
 
-    function renderCount(){
-      document.getElementById("count").textContent=`表示件数: ${filtered.length} / 総件数: ${rawData.length}`;
-    }
+let rawData=[], filtered=[];
 
-    function renderGrid(){
-      const grid=document.getElementById("grid"), empty=document.getElementById("empty");
-      grid.innerHTML="";
-      if(filtered.length===0){
-        empty.style.display="block";
-        return;
-      }
-      empty.style.display="none";
-      filtered.forEach(m=>{
-        const age=calcAge(m[F.birthday]);
-        const img=convertDriveLink(m[F.photo]);
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`
-		<div class="card-header">
-		  ${img
-		    ? `<img src="${escapeHtml(img)}" alt="">`
-		    : `<div class="no-image">NO IMAGE</div>`}
-		</div>
-
-          <div class="card-body">
-            <div class="name-row">
-              ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
-              <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
-            </div>
-            <div class="meta-row">
-              ${age?`<div class="age">年齢: ${age}</div>`:""}
-              <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
-            </div>
-			<dl class="detail">
-			  <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
-			  <dt>初当選年月日</dt><dd>${escapeHtml(toSafe(m[F.firstWon]))}</dd>
-			  <dt>次回改選年月日</dt><dd>${escapeHtml(toSafe(m[F.nextElection]))}</dd>
-			  <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
-			  <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
-			  <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
-			  <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
-			</dl>
+function renderGrid(){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  filtered.forEach(m=>{
+    const age = isOpen(m[F.birthdayOpen]) ? calcAge(m[F.birthday]) : "";
+    grid.insertAdjacentHTML("beforeend",`
+      <div class="card">
+        <div class="card-header">
+          ${m[F.photo] ? `<img src="${escapeHtml(m[F.photo])}">` : `<div class="no-image">NO IMAGE</div>`}
+        </div>
+        <div class="card-body">
+          <div class="name-row">
+            <div class="kana">${escapeHtml(m[F.kana])}</div>
+            <div class="name">${escapeHtml(m[F.name])}</div>
           </div>
-          <div class="footer">
-            <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+          <div class="meta-row">
+            ${age ? `<div>年齢: ${age}</div>` : ""}
+            <div>${escapeHtml(m[F.council])}（${escapeHtml(m[F.pref])}）</div>
           </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
+          <dl class="detail">
+            ${isOpen(m[F.birthdayOpen]) ? `<dt>誕生日</dt><dd>${escapeHtml(m[F.birthday])}</dd>` : ""}
+            <dt>初当選</dt><dd>${escapeHtml(m[F.firstWon])}</dd>
+            <dt>次回改選</dt><dd>${escapeHtml(m[F.nextElection])}</dd>
+            ${isOpen(m[F.addressOpen]) ? `<dt>住所</dt><dd>${escapeHtml(m[F.address])}</dd>` : ""}
+            ${isOpen(m[F.telOpen]) ? `<dt>電話</dt><dd>${escapeHtml(m[F.tel])}</dd>` : ""}
+            ${isOpen(m[F.emailOpen]) ? `<dt>メール</dt><dd>${escapeHtml(m[F.email])}</dd>` : ""}
+          </dl>
+        </div>
+      </div>
+    `);
+  });
+}
 
-    function applyFilters(){
-      const q=document.getElementById("q").value.trim().toLowerCase();
-      const block=document.getElementById("block").value;
-      const pref=document.getElementById("pref").value;
-      const party=document.getElementById("party").value;
-      const sort=document.getElementById("sort").value;
-
-      filtered=rawData
-        .filter(m=>toSafe(m[F.publish]).startsWith("掲載"))
-        .filter(m=>{
-          const name=toSafe(m[F.name]).toLowerCase();
-          const kana=toSafe(m[F.kana]).toLowerCase();
-          const matchQ=q?(name.includes(q)||kana.includes(q)):true;
-          const matchBlock=block?toSafe(m[F.block])===block:true;
-          const matchPref=pref?toSafe(m[F.pref])===pref:true;
-          const matchParty=party?toSafe(m[F.party])===party:true;
-          return matchQ&&matchBlock&&matchPref&&matchParty;
-        });
-
-      if(sort==="ageAsc"){
-        filtered.sort((a,b)=>calcAge(a[F.birthday])-calcAge(b[F.birthday]));
-      }else if(sort==="ageDesc"){
-        filtered.sort((a,b)=>calcAge(b[F.birthday])-calcAge(a[F.birthday]));
-      }
-
-      renderCount();
-      renderGrid();
-    }
-
-    function initEvents(){
-      ["q","block","pref","party","sort"].forEach(id=>{
-        document.getElementById(id).addEventListener("input",applyFilters);
-        document.getElementById(id).addEventListener("change",applyFilters);
-      });
-    }
-
-    async function loadCSV(url){
-      const res=await fetch(url,{cache:"no-store"});
-      const text=await res.text();
-      const parsed=Papa.parse(text,{header:true,skipEmptyLines:true});
-      return parsed.data;
-    }
-
-    async function main(){
-      initEvents();
-      try{
-        rawData=await loadCSV(CSV_URL);
-        const published=rawData.filter(m=>toSafe(m[F.publish]).startsWith("掲載"));
-        renderOptions("block",published.map(m=>toSafe(m[F.block])));
-        renderOptions("pref",published.map(m=>toSafe(m[F.pref])));
-        renderOptions("party",published.map(m=>toSafe(m[F.party])));
-        filtered=published.slice();
-        renderCount();
-        renderGrid();
-      }catch(e){
-        console.error(e);
-        const empty=document.getElementById("empty");
-        empty.textContent="データの読み込みに失敗しました。CSV公開URLを確認してください。";
-        empty.style.display="block";
-      }
-    }
-
-    main();
-  </script>
+async function main(){
+  const text = await (await fetch(CSV_URL)).text();
+  rawData = Papa.parse(text,{header:true}).data;
+  filtered = rawData.filter(m => toSafe(m[F.publish]) === "掲載");
+  renderGrid();
+}
+main();
+</script>
 </body>
 </html>
