@@ -27,17 +27,16 @@
     .detail dt { font-weight:600; color:#555; margin:0; }
     .detail dd { margin:0; color:#333; }
     .no-image {
-  width: 100%;
-  height: 100%;
-  background: #eee;
-  color: #999;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
+      width: 100%;
+      height: 100%;
+      background: #eee;
+      color: #999;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
     .footer { padding:10px 14px; border-top:1px solid #eee; display:flex; flex-wrap:wrap; gap:6px; }
     .badge { border:1px solid #ccc; border-radius:999px; padding:2px 8px; font-size:0.85rem; color:#555; background:#fff; }
     .empty { text-align:center; color:#777; padding:32px 0; display:none; }
@@ -95,6 +94,13 @@
     function parseDateLoose(s){ const t=toSafe(s); if(!t) return null; const n=t.replace(/年/g,"/").replace(/月/g,"/").replace(/日/g,""); const d=new Date(n); return isNaN(d)?null:d; }
     function calcAge(b){ const d=parseDateLoose(b); if(!d) return ""; const t=new Date(); let a=t.getFullYear()-d.getFullYear(); const m=t.getMonth()-d.getMonth(); if(m<0||(m===0&&t.getDate()<d.getDate())) a--; return a; }
 
+    // ★ 追加：年月表示用フォーマット関数
+    function formatToYearMonth(s){
+      const d = parseDateLoose(s);
+      if(!d) return "";
+      return `${d.getFullYear()}年${d.getMonth()+1}月`;
+    }
+
     function convertDriveLink(url){
       if (!url) return "";
       const byIdParam = url.match(/[?&]id=([^&]+)/);
@@ -130,36 +136,36 @@
         const card=document.createElement("div");
         card.className="card";
         card.innerHTML=`
-		<div class="card-header">
-		  ${img
-		    ? `<img src="${escapeHtml(img)}" alt="">`
-		    : `<div class="no-image">NO IMAGE</div>`}
-		</div>
+        <div class="card-header">
+          ${img
+            ? `<img src="${escapeHtml(img)}" alt="">`
+            : `<div class="no-image">NO IMAGE</div>`}
+        </div>
 
-          <div class="card-body">
-            <div class="name-row">
-              ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
-              <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
-            </div>
-            <div class="meta-row">
-              ${age?`<div class="age">年齢: ${age}</div>`:""}
-              <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
-            </div>
-			<dl class="detail">
-			  <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
-			  <dt>初当選年月日</dt><dd>${escapeHtml(toSafe(m[F.firstWon]))}</dd>
-			  <dt>次回改選年月日</dt><dd>${escapeHtml(toSafe(m[F.nextElection]))}</dd>
-			  <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
-			  <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
-			  <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
-			  <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
-			</dl>
+        <div class="card-body">
+          <div class="name-row">
+            ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
+            <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
           </div>
-          <div class="footer">
-            <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
-            <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+          <div class="meta-row">
+            ${age?`<div class="age">年齢: ${age}</div>`:""}
+            <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
           </div>
+          <dl class="detail">
+            <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
+            <dt>初当選年月</dt><dd>${escapeHtml(formatToYearMonth(m[F.firstWon]))}</dd>
+            <dt>次回改選年月</dt><dd>${escapeHtml(formatToYearMonth(m[F.nextElection]))}</dd>
+            <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
+            <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
+            <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
+            <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
+          </dl>
+        </div>
+        <div class="footer">
+          <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
+          <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
+          <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+        </div>
         `;
         grid.appendChild(card);
       });
