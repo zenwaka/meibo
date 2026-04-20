@@ -83,20 +83,21 @@
       nextElection: "次回改選年月日",
       address: "住所",
       tel: "電話番号",
-      mobile: "携帯電話番号",
       fax: "FAX",
       email: "メールアドレス",
       photo: "HP掲載用写真",
       addressPub: "住所公開",
       telPub: "電話番号公開",
-      mobilePub: "携帯電話番号公開",
       birthdayPub: "誕生日公開",
       emailPub: "メールアドレス公開",
       publish: "掲載判定"
     };
 
     function toSafe(s) {
-      return (s ?? "").toString().replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+      return (s ?? "")
+        .toString()
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .trim();
     }
 
 <<<<<<< HEAD
@@ -137,12 +138,6 @@
       return a;
     }
 
-    function formatYearMonth(s) {
-      const d = parseDateLoose(s);
-      if (!d) return "";
-      return `${d.getFullYear()}年${d.getMonth() + 1}月`;
-    }
-
     function convertDriveLink(url) {
 >>>>>>> be0d6689677301324bfd69f5ff282a831ec4eaa8
       if (!url) return "";
@@ -158,7 +153,8 @@
       );
     }
 
-    let rawData = [], filtered = [];
+    let rawData = [],
+      filtered = [];
     let renderIndex = 0;
     const PAGE_SIZE = 30;
 
@@ -212,8 +208,9 @@
         </div>
 =======
     function renderCount() {
-      document.getElementById("count")
-        .textContent = `表示件数: ${filtered.length} / 総件数: ${rawData.length}`;
+      document.getElementById(
+        "count"
+      ).textContent = `表示件数: ${filtered.length} / 総件数: ${rawData.length}`;
     }
 
     function appendMoreCards() {
@@ -249,8 +246,8 @@
               <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
             ` : ""}
 
-            <dt>初当選年月</dt><dd>${escapeHtml(formatYearMonth(m[F.firstWon]))}</dd>
-            <dt>次回改選年月</dt><dd>${escapeHtml(formatYearMonth(m[F.nextElection]))}</dd>
+            <dt>初当選年月</dt><dd>${escapeHtml(toSafe(m[F.firstWon]))}</dd>
+            <dt>次回改選年月</dt><dd>${escapeHtml(toSafe(m[F.nextElection]))}</dd>
 
             ${toSafe(m[F.addressPub]) === "する" ? `
               <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
@@ -258,10 +255,6 @@
 
             ${toSafe(m[F.telPub]) === "する" ? `
               <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
-            ` : ""}
-
-            ${toSafe(m[F.mobilePub]) === "する" ? `
-              <dt>携帯電話</dt><dd>${escapeHtml(toSafe(m[F.mobile]))}</dd>
             ` : ""}
 
             <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
@@ -297,6 +290,7 @@
       }
 
       empty.style.display = "none";
+
       appendMoreCards();
     }
 
@@ -320,9 +314,13 @@
         });
 
       if (sort === "ageAsc") {
-        filtered.sort((a, b) => calcAge(a[F.birthday]) - calcAge(b[F.birthday]));
+        filtered.sort(
+          (a, b) => calcAge(a[F.birthday]) - calcAge(b[F.birthday])
+        );
       } else if (sort === "ageDesc") {
-        filtered.sort((a, b) => calcAge(b[F.birthday]) - calcAge(a[F.birthday]));
+        filtered.sort(
+          (a, b) => calcAge(b[F.birthday]) - calcAge(a[F.birthday])
+        );
       }
 
       renderCount();
