@@ -1,10 +1,9 @@
 import type { Context } from "@netlify/edge-functions";
 
-// サイトパスワードのSHA-256ハッシュ値
-// セキュリティ上、ハッシュ値のみを保持させます
-const PASSWORD_HASH = "88a1ab8c9e495502609d0d05777590553062a83bfab9c982fbca9abcca25f5c2";
-
 export default async (request: Request, context: Context) => {
+  // Netlifyの環境変数からパスワードを取得
+  const EXPECTED_PASSWORD = Deno.env.get("SITE_PASSWORD");
+
   const url = new URL(request.url);
 
   // すでに認証成功の Cookie を持っているかチェック
@@ -19,14 +18,13 @@ export default async (request: Request, context: Context) => {
     const formData = await request.formData();
     const inputPassword = formData.get("password")?.toString() || "";
 
-    // 入力されたパスワードのSHA-256ハッシュを計算して比較
-    const encoder = new TextEncoder();
-    const data = encoder.encode(inputPassword);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const inputHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    // 万が一Netlify側で環境変数の設定を忘れていた場合のフェールセーフ
+    if (!EXPECTED_PASSWORD) {
+      return renderLogin("サイトの設定エラー: パスワードの環境変数(SITE_PASSWORD)がNetlify上で設定されていません。");
+    }
 
-    if (inputHash === PASSWORD_HASH) {
+    // 環境変数のパスワードと入力されたパスワードを直接比較
+    if (inputPassword === EXPECTED_PASSWORD) {
       // 認証成功：Cookieに「認証済み」として記録（有効期限30日）
       context.cookies.set({
         name: "site_auth",
