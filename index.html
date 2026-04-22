@@ -64,6 +64,8 @@
     <div id="count" class="count"></div>
     <div id="grid" class="grid"></div>
     <div id="empty" class="empty">条件に一致する議員がいません。</div>
+    <!-- 無限スクロール検知用要素 -->
+    <div id="observer-target" style="height: 1px;"></div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -149,7 +151,7 @@
 
     let rawData = [], filtered = [];
     let renderIndex = 0;
-    const PAGE_SIZE = 30;
+    const PAGE_SIZE = 12; // 一度に読み込む件数を減らし、初回の読み込み負担を軽減
 
     function renderOptions(id, values) {
       const sel = document.getElementById(id);
@@ -282,15 +284,16 @@
         document.getElementById(id).addEventListener("change", applyFilters);
       });
 
-      window.addEventListener("scroll", () => {
-        const bottom =
-          window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 200;
-
-        if (bottom && renderIndex < filtered.length) {
+      // スクロールイベントの連続発火を防ぎ、安定して読み込むために IntersectionObserver を使用
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && renderIndex < filtered.length) {
           appendMoreCards();
         }
+      }, {
+        rootMargin: "300px" // 画面下端から300pxの位置に入ったら先読み開始
       });
+
+      observer.observe(document.getElementById("observer-target"));
     }
 
     async function loadCSV(url) {
