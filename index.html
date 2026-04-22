@@ -115,7 +115,7 @@
 
     let rawData = [], filtered = [];
     let renderIndex = 0;
-    const PAGE_SIZE = 30;
+    const PAGE_SIZE = 12;
 
     function renderOptions(id, values) {
       const sel = document.getElementById(id);
@@ -132,12 +132,21 @@
     function renderGrid(){
       const grid=document.getElementById("grid"), empty=document.getElementById("empty");
       grid.innerHTML="";
+      renderIndex=0;
       if(filtered.length===0){
         empty.style.display="block";
         return;
       }
       empty.style.display="none";
-      filtered.forEach(m=>{
+      appendMoreCards();
+    }
+
+    function appendMoreCards(){
+      const grid=document.getElementById("grid");
+      const next=filtered.slice(renderIndex, renderIndex + PAGE_SIZE);
+      renderIndex += next.length;
+
+      next.forEach(m=>{
         const age=calcAge(m[F.birthday]);
         const img=convertDriveLink(m[F.photo]);
         const card=document.createElement("div");
@@ -145,33 +154,33 @@
         card.innerHTML=`
         <div class="card-header">
           ${img
-            ? `<img src="${escapeHtml(img)}" alt="">`
-            : `<div class="no-image">NO IMAGE</div>`}
+            ? \`<img src="\${escapeHtml(img)}" alt="">\`
+            : \`<div class="no-image">NO IMAGE</div>\`}
         </div>
 
         <div class="card-body">
           <div class="name-row">
-            ${m[F.kana]?`<div class="kana">${escapeHtml(toSafe(m[F.kana]))}</div>`:""}
-            <div class="name">${escapeHtml(toSafe(m[F.name]))}</div>
+            \${m[F.kana]?\`<div class="kana">\${escapeHtml(toSafe(m[F.kana]))}</div>\`:\`\`}
+            <div class="name">\${escapeHtml(toSafe(m[F.name]))}</div>
           </div>
           <div class="meta-row">
-            ${age?`<div class="age">年齢: ${age}</div>`:""}
-            <div class="meta">${escapeHtml(toSafe(m[F.council]))}（${escapeHtml(toSafe(m[F.pref]))}）</div>
+            \${age?\`<div class="age">年齢: \${age}</div>\`:\`\`}
+            <div class="meta">\${escapeHtml(toSafe(m[F.council]))}（\${escapeHtml(toSafe(m[F.pref]))}）</div>
           </div>
           <dl class="detail">
-            <dt>誕生日</dt><dd>${escapeHtml(toSafe(m[F.birthday]))}</dd>
-            <dt>初当選年月</dt><dd>${escapeHtml(formatToYearMonth(m[F.firstWon]))}</dd>
-            <dt>次回改選年月</dt><dd>${escapeHtml(formatToYearMonth(m[F.nextElection]))}</dd>
-            <dt>住所</dt><dd>${escapeHtml(toSafe(m[F.address]))}</dd>
-            <dt>電話番号</dt><dd>${escapeHtml(toSafe(m[F.tel]))}</dd>
-            <dt>FAX</dt><dd>${escapeHtml(toSafe(m[F.fax]))}</dd>
-            <dt>メールアドレス</dt><dd>${escapeHtml(toSafe(m[F.email]))}</dd>
+            <dt>誕生日</dt><dd>\${escapeHtml(toSafe(m[F.birthday]))}</dd>
+            <dt>初当選年月</dt><dd>\${escapeHtml(formatToYearMonth(m[F.firstWon]))}</dd>
+            <dt>次回改選年月</dt><dd>\${escapeHtml(formatToYearMonth(m[F.nextElection]))}</dd>
+            <dt>住所</dt><dd>\${escapeHtml(toSafe(m[F.address]))}</dd>
+            <dt>電話番号</dt><dd>\${escapeHtml(toSafe(m[F.tel]))}</dd>
+            <dt>FAX</dt><dd>\${escapeHtml(toSafe(m[F.fax]))}</dd>
+            <dt>メールアドレス</dt><dd>\${escapeHtml(toSafe(m[F.email]))}</dd>
           </dl>
         </div>
         <div class="footer">
-          <span class="badge">${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
-          <span class="badge">${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
-          <span class="badge">${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
+          <span class="badge">\${m[F.block] ? escapeHtml(toSafe(m[F.block]) + "ブロック") : "ブロック未設定"}</span>
+          <span class="badge">\${escapeHtml(toSafe(m[F.pref])) || "都道府県未設定"}</span>
+          <span class="badge">\${escapeHtml(toSafe(m[F.party])) || "政党未設定"}</span>
         </div>
         `;
         grid.appendChild(card);
@@ -213,15 +222,11 @@
         document.getElementById(id).addEventListener("change", applyFilters);
       });
 
-      window.addEventListener("scroll", () => {
-        const bottom =
-          window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 200;
-
-        if (bottom && renderIndex < filtered.length) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && renderIndex < filtered.length) {
           appendMoreCards();
         }
-      });
+      }, { rootMargin: "300px" });
 
       observer.observe(document.getElementById("observer-target"));
     }
